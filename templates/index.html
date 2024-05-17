@@ -1,0 +1,624 @@
+<html lanf="en" dir="ltr">
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+        <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+        <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+                integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
+                crossorigin=""/>
+        <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+                integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
+                crossorigin=""></script>
+        <title>Search bus</title>
+        <style>
+            .leaflet-tooltip{
+                font-size: 15px;
+            }
+        </style>
+    </head>
+    <body>
+    <div id="map" style=" height: 70%; width: 100%"></div>
+    <div style="display: flex; flex-wrap: wrap;">
+        <div style="width: 20%; margin-left: 10px">
+            <h3>Stations</h3>
+            <ul id="bus-stops" class="list-group"></ul>
+        </div>
+
+        <div style="width: 20%; margin-left: 10px">
+            <h3>Speed</h3>
+            <ul id="bus-speed" class="list-group"></ul>
+        </div>
+
+        <div style="width: 40%; margin-left: 10px">
+            <h3>Notify me when the bus arrives.</h3>
+            <select id="buses-select" style="width: 200px; height: 50px" class="form-select" aria-label="Default select example"></select>
+            <select id="stations-select" style="width: 200px; height: 50px" class="form-select" aria-label="Default select example"></select>
+            <button id="btn-notification" style="display: block; margin-top: 10px" type="button" class="btn btn-primary">Notify me</button>
+            <div id="lbl-notification" style="margin-top: 10px"></div>
+        </div>
+    </div>
+
+    <script>
+        const map = L.map('map').setView([46.7700, 23.6000], 15);
+        L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            maxZoom: 19,
+            attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+        }).addTo(map);
+
+        const buses = {
+            '24B': {
+                'markers': [],
+                'stations': [
+                    {
+                        "coordinates": [
+                            23.630331810072335,
+                            46.76824035274828
+                        ],
+                        "name": "Dispecerul unirii"
+                    },
+                    {
+                        "coordinates": [
+                            23.628508505074336,
+                            46.76974114613512
+                        ],
+                        "name": "Colegiul Pedagogic"
+                    },
+                    {
+                        "coordinates": [
+                            23.625553817716906,
+                            46.77143651909165
+                        ],
+                        "name": "Iulius Mall E"
+                    },
+                    {
+                        "coordinates": [
+                            23.621657208391383,
+                            46.77438977019435
+                        ],
+                        "name": "Campus Universitar E"
+                    },
+                    {
+                        "coordinates": [
+                          23.61694943840058,
+                          46.778829403671864
+                        ],
+                        "name": "Arte Plastice"
+                    },
+                    {
+                        "coordinates": [
+                          23.613493863912538,
+                          46.77817354134987
+                        ],
+                        "name": "Crinului"
+                    },
+                    {
+                         "coordinates": [
+                          23.605300648452527,
+                          46.77613552168552
+                        ],
+                        "name": "Somes"
+                    },
+                    {
+                        "coordinates": [
+                          23.59671743686789,
+                          46.77303487311232
+                        ],
+                        "name": "Constanta"
+                    },
+                    {
+                        "coordinates": [
+                          23.591404785132056,
+                          46.77147580716388
+                        ],
+                        "name": "Sora"
+                    },
+                    {
+                        "coordinates": [
+                          23.58688214789757,
+                          46.76961915802363
+                        ],
+                        "name": "Memorandumului N"
+                    },
+                    {
+                        "coordinates": [
+                          23.580187967816755,
+                          46.76650256940235
+                        ],
+                        "name": "Spitalul de Copii"
+                    },
+                    {
+                        "coordinates": [
+                          23.57366116172696,
+                          46.763912765242225
+                        ],
+                        "name": "Fabrica de Bere"
+                    },
+                    {
+                        "coordinates": [
+                          23.56411504225599,
+                          46.76083154502936
+                        ],
+                        "name": "Gradini Manastur"
+                    },
+                    {
+                        "coordinates": [
+                          23.55083660101826,
+                          46.75876241948666
+                        ],
+                        "name": "Taberei"
+                    },
+                    {
+                        "coordinates": [
+                          23.545962824369298,
+                          46.757740900901155
+                        ],
+                        "name": "Calea Floresti"
+                    },
+                    {
+                        "coordinates": [
+                          23.540401313881944,
+                          46.756493817730814
+                        ],
+                        "name": "Nodul N Nord"
+                    },
+                    {
+                         "coordinates": [
+                          23.53305096473713,
+                          46.7532066421833
+                        ],
+                        "name": "VIVO! Cluj-Napoca"
+                    }
+                ]
+            },
+            '25': {
+                'markers': [],
+                'stations': [
+                     {
+                        "coordinates": [
+                            23.630331810072335,
+                            46.76824035274828
+                        ],
+                        "name": "Dispecerul unirii"
+                    },
+                    {
+                        "coordinates": [
+                          23.628432688595694,
+                          46.76794704639073
+                        ],
+                        "name": "Snagov N"
+                    },
+                    {
+                        "coordinates": [
+                          23.622345979481395,
+                          46.76835690099077
+                        ],
+                        "name": "Borsec N"
+                    },
+                    {
+                        "coordinates": [
+                          23.616478898380024,
+                          46.769124490024495
+                        ],
+                        "name": "Bistritei"
+                    },
+                    {
+                        "coordinates": [
+                          23.60795908747093,
+                          46.769190429403324
+                        ],
+                        "name": "Sptimiu Albini N"
+                    },
+                    {
+                        "coordinates": [
+                          23.59928456030488,
+                          46.7684730211416
+                        ],
+                        "name": "Piata Cipariu N"
+                    },
+                    {
+                         "coordinates": [
+                          23.59727720789192,
+                          46.77136078987837
+                        ],
+                        "name": "Piata Avram Iancu"
+                    },
+                    {
+                        "coordinates": [
+                          23.591404785132056,
+                          46.77147580716388
+                        ],
+                        "name": "Sora"
+                    },
+                    {
+                        "coordinates": [
+                          23.58688214789757,
+                          46.76961915802363
+                        ],
+                        "name": "Memorandumului N"
+                    },
+                    {
+                        "coordinates": [
+                          23.580187967816755,
+                          46.76650256940235
+                        ],
+                        "name": "Spitalul de Copii"
+                    },
+                    {
+                        "coordinates": [
+                          23.57366116172696,
+                          46.763912765242225
+                        ],
+                        "name": "Fabrica de Bere"
+                    },
+                    {
+                        "coordinates": [
+                          23.56411504225599,
+                          46.76083154502936
+                        ],
+                        "name": "Gradini Manastur"
+                    },
+                    {
+                        "coordinates": [
+                          23.55653340363378,
+                          46.75771284023517
+                        ],
+                        "name": "Ion Mester"
+                    },
+                    {
+                        "coordinates": [
+                          23.55470676531138,
+                          46.75458515945937
+                        ],
+                        "name": "Peana"
+                    },
+                    {
+                        "coordinates": [
+                          23.54591936710085,
+                          46.7519923701245
+                        ],
+                        "name": "Clabucet"
+                    },
+                    {
+                        "coordinates": [
+                          23.542976368917977,
+                          46.75162342279111
+                        ],
+                        "name": "Dispecerul Bucium"
+                    }
+                ]
+            },
+            '5': {
+                'markers': [],
+                'stations': [
+                    {
+                         "coordinates": [
+                          23.588430830229953,
+                          46.78422421810515
+                        ],
+                        "name": "Piata Garii"
+                    },
+                    {
+                        "coordinates": [
+                          23.59169970254814,
+                          46.7808152373168
+                        ],
+                        "name": "Traian"
+                    },
+                    {
+                         "coordinates": [
+                          23.591375234643237,
+                          46.77500018761202
+                        ],
+                        "name": "I. P. Voitesti"
+                    },
+                    {
+                         "coordinates": [
+                          23.59738654048408,
+                          46.77321746133629
+                        ],
+                        "name": "Regionala CFR"
+                    },
+                    {
+                         "coordinates": [
+                          23.605682294076928,
+                          46.776099513515334
+                        ],
+                        "name": "Biserica Sf. Petru"
+                    },
+                    {
+                         "coordinates": [
+                          23.61149864743814,
+                          46.77762844365728
+                        ],
+                        "name": "Piata Marasti"
+                    },
+                    {
+                         "coordinates": [
+                          23.615594672328285,
+                          46.77839686985354
+                        ],
+                        "name": "Maresal Constantin Prezan"
+                    },
+                    {
+                         "coordinates": [
+                          23.627046300130473,
+                          46.780591017690824
+                        ],
+                        "name": "Siretului"
+                    },
+                    {
+                         "coordinates": [
+                          23.636225395489134,
+                          46.78170047502516
+                        ],
+                        "name": "Pod Someseni"
+                    },
+                    {
+                         "coordinates": [
+                          23.64785367382231,
+                          46.784145007247844
+                        ],
+                        "name": "Aiudului"
+                    },
+                    {
+                          "coordinates": [
+                          23.65440284029546,
+                          46.78417897605189
+                        ],
+                        "name": "Scoala Someseni"
+                    },
+                    {
+                         "coordinates": [
+                          23.66216093833239,
+                          46.782787151364516
+                        ],
+                        "name": "Orastie"
+                    },
+                    {
+                         "coordinates": [
+                          23.66571408921189,
+                          46.78066154003963
+                        ],
+                        "name": "Ambient"
+                    },
+                    {
+                        "coordinates": [
+                          23.6702311753985,
+                          46.78038095887834
+                        ],
+                        "name": "Mos Ion Roata"
+                    },
+                    {
+                         "coordinates": [
+                          23.677028042477588,
+                          46.780779639246475
+                        ],
+                        "name": "Traian Vuia Sud"
+                    },
+                    {
+                          "coordinates": [
+                          23.686131453326567,
+                          46.781278868687565
+                        ],
+                        "name": "Aeroport Sud"
+                    },
+                    {
+                          "coordinates": [
+                          23.696194836871115,
+                          46.7818391902874
+                        ],
+                        "name": "Cantonului"
+                    },
+                    {
+                         "coordinates": [
+                          23.697623002692893,
+                          46.7819166008712
+                        ],
+                        "name": "Electromontaj Sud"
+                    }
+                ]
+            }
+        };
+
+        var source = new EventSource('/topic/geodata_final');
+        var isNotificationActivate = false;
+
+        updateNotificationStatus()
+        initializeSelectors();
+        initializeBtnNotification();
+        initializeMessageListener();
+
+        function initializeMessageListener() {
+            source.addEventListener('message', function(e) {
+                const obj = JSON.parse(e.data);
+                showStation(obj);
+                showBusSpeed(obj);
+                setMarkers(obj);
+            });
+        }
+
+        function setMarkers(obj) {
+            const mapMarker = buses[obj.busline].markers;
+
+            for(let i = 0; i < mapMarker.length; ++i){
+                map.removeLayer(mapMarker[i]);
+            }
+
+            const newMarker = L.marker([obj.latitude, obj.longitude]).addTo(map);
+            newMarker.bindTooltip("Bus Line: " + obj.busline, {
+                permanent: true,
+                direction: 'right',
+            });
+            buses[obj.busline].markers = [newMarker]
+        }
+
+        function showBusSpeed(obj) {
+            const lat = buses[obj.busline].lat;
+            const lon = buses[obj.busline].lon;
+            const time = buses[obj.busline].time;
+
+            if (lat && lon && time) {
+                const speed = calculateSpeed(lat, obj.latitude, lon, obj.longitude, time, obj.time);
+                const listItem = document.getElementById(`v${obj.busline}`)
+
+                if (listItem) {
+                    listItem.textContent = `${obj.busline}: ${speed.toFixed(2)} km/h`;
+                }
+                else {
+                    const newListItem = document.createElement('li');
+                    newListItem.id = `v${obj.busline}`;
+                    newListItem.classList.add('list-group-item', 'd-flex', 'justify-content-between', 'align-items-center');
+                    newListItem.innerHTML = `${obj.busline}: ${speed.toFixed(2)} km/h`;
+
+                    const listContainer = document.getElementById('bus-speed');
+                    listContainer.appendChild(newListItem);
+                }
+            }
+
+            buses[obj.busline].lat = obj.latitude;
+            buses[obj.busline].lon = obj.longitude;
+            buses[obj.busline].time = obj.time;
+        }
+
+        function calculateSpeed(lat1, lat2, lon1, lon2, time1, time2) {
+            const distanceKm = calculateDistance(lat1, lat2, lon1, lon2) / 1000;
+            const time1Date = new Date(time1);
+            const time2Date = new Date(time2);
+            const timeDiffInHours = (time2Date - time1Date) / (1000 * 60 * 60);
+
+            return distanceKm / timeDiffInHours;
+        }
+
+        function calculateDistance(lat1, lat2, lon1, lon2) {
+            // The radius of the Earth in kilometers.
+            const earthRadius = 6371;
+
+            const lat1Rad = toRadians(lat1);
+            const lon1Rad = toRadians(lon1);
+            const lat2Rad = toRadians(lat2);
+            const lon2Rad = toRadians(lon2);
+
+            const dLat = lat2Rad - lat1Rad;
+            const dLon = lon2Rad - lon1Rad;
+
+            const a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+                      Math.cos(lat1Rad) * Math.cos(lat2Rad) *
+                      Math.sin(dLon / 2) * Math.sin(dLon / 2);
+            const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+
+            const distanceKm = earthRadius * c;
+
+            return distanceKm * 1000;
+        }
+
+        function toRadians(degrees) {
+            return degrees * Math.PI / 180;
+        }
+
+        function getNearestStation(obj) {
+            let nearestStation = null;
+            let minDifference = Infinity;
+
+            for (const stop of buses[obj.busline].stations) {
+                const stopLat = stop.coordinates[1];
+                const stopLon = stop.coordinates[0];
+
+                const latDifference = Math.abs(obj.latitude - stopLat);
+                const lonDifference = Math.abs(obj.longitude - stopLon);
+
+                const totalDifference = latDifference + lonDifference;
+
+                if (totalDifference < minDifference) {
+                    minDifference = totalDifference;
+                    nearestStation = stop.name;
+                }
+            }
+
+            return nearestStation;
+        }
+
+        function showStation(obj) {
+            const nearestStation = getNearestStation(obj);
+
+            if (isNotificationActivate) {
+                const busSelected = document.getElementById("buses-select").value;
+                const stopSelected = document.getElementById("stations-select").value;
+
+                if (obj.busline === busSelected && nearestStation === stopSelected) {
+                    alert(`The bus ${busSelected} is arriving soon!`)
+                    isNotificationActivate = false;
+                    updateNotificationStatus();
+                }
+            }
+
+            const listItem = document.getElementById(`s${obj.busline}`)
+            if (listItem) {
+                listItem.textContent = `${obj.busline}: ${nearestStation}`;
+            }
+            else {
+                const newListItem = document.createElement('li');
+                newListItem.id = `s${obj.busline}`;
+                newListItem.classList.add('list-group-item', 'd-flex', 'justify-content-between', 'align-items-center');
+                newListItem.innerHTML = `${obj.busline}: ${nearestStation}`;
+
+                const listContainer = document.getElementById('bus-stops');
+                listContainer.appendChild(newListItem);
+            }
+        }
+
+        function initializeSelectors() {
+            const busSelect = document.getElementById("buses-select");
+            const stopSelect = document.getElementById("stations-select");
+
+            for (const busNumber in buses) {
+                if (buses.hasOwnProperty(busNumber)) {
+                  const option = document.createElement("option");
+                  option.value = busNumber;
+                  option.text = busNumber;
+                  busSelect.appendChild(option);
+                }
+            }
+
+            busSelect.addEventListener("change", function() {
+                stopSelect.innerHTML = '';
+                const selectedBusNumber = this.value;
+
+                if (selectedBusNumber) {
+                    const stations = buses[selectedBusNumber].stations;
+                    console.log(stations)
+                    stations.forEach(function(station) {
+                        const option = document.createElement("option");
+                        option.value = station.name;
+                        option.text = station.name;
+                        stopSelect.appendChild(option);
+                    });
+
+                }
+                stopSelect.selectedIndex = 0;
+            });
+        }
+
+        function updateNotificationStatus() {
+            const notificationStatusElement = document.getElementById("lbl-notification");
+            if (isNotificationActivate) {
+                notificationStatusElement.textContent = "The notification is activated.";
+                notificationStatusElement.style.color = "green"
+            } else {
+                notificationStatusElement.textContent = "The notification is deactivated.";
+                notificationStatusElement.style.color = "red";
+            }
+        }
+
+        function initializeBtnNotification() {
+            const btnNotification = document.getElementById('btn-notification');
+            btnNotification.addEventListener('click', function() {
+                isNotificationActivate = true;
+                updateNotificationStatus()
+            });
+        }
+
+    </script>
+    </body>
+</html>
